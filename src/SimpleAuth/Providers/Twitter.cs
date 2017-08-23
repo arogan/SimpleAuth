@@ -38,15 +38,16 @@ namespace SimpleAuth.Providers
 			OauthToken = ta.AuthCode;
 			var resp = await PostMessage("https://api.twitter.com/oauth/access_token", new FormUrlEncodedContent(new Dictionary<string, string> { { "oauth_verifier", ta.CodeVerifier } }), authenticated: false);
 			var data = HttpUtility.ParseQueryString(await resp.Content.ReadAsStringAsync());
-			var account = new TwitterAccount()
-			{
-				ExpiresIn = 0,
-				Created = DateTime.UtcNow,
-				RefreshToken = ta.AuthCode,
-				Scope = authenticator.Scope?.ToArray(),
-				TokenType = "Oauth",
-				Token = data["oauth_token"],
-				OAuthSecret = data["oauth_token_secret"],
+            var account = new TwitterAccount()
+            {
+                ExpiresIn = 0,
+                Created = DateTime.UtcNow,
+                RefreshToken = ta.AuthCode,
+                Scope = authenticator.Scope?.ToArray(),
+                TokenType = "Oauth",
+                Token = data["oauth_token"],
+                OAuthSecret = data["oauth_token_secret"],
+                CodeVerifier = ta.CodeVerifier,
 				ClientId = ClientId,
 				Identifier = identifier,
 			};
@@ -204,6 +205,7 @@ namespace SimpleAuth.Providers
 	public class TwitterAccount : OAuthAccount
 	{
 		public string OAuthSecret { get; set; }
+        public string CodeVerifier { get; set; }
 
 		public override bool IsValid()
 		{
